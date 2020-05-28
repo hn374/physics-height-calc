@@ -1,16 +1,27 @@
 import * as React from "react";
-import { View, Text } from "react-native";
+import { StyleSheet, View, Text } from "react-native";
+import LaunchScreen from "./src/pages/launchScreen.js";
+import HomeScreen from "./src/pages/homeScreen.js";
+import { Provider as PaperProvider } from 'react-native-paper';
 
-export default function App() {
+function App() {
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Text>Universal React with Expo</Text>
-    </View>
+    <PaperProvider>
+      <View style={ styles.viewContainer }>
+        {/* <LaunchScreen></LaunchScreen> */}
+        <HomeScreen></HomeScreen>
+      </View>
+    </PaperProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  viewContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: '#41C4FC',
+  },
+});
+
+export default App;
