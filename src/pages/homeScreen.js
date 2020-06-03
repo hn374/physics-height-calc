@@ -1,18 +1,28 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Button } from 'react-native-paper';
 import { StyleSheet, View, Text } from "react-native";
+import Modal from 'react-native-modal';
+import { Button } from 'react-native-paper';
 
 function HomeScreen() {
     const [time, setTime] = useState(0);
     const [milliseconds, setMilliseconds] = useState(0);
     const [isActive, setIsActive] = useState(false);
     const [height, setHeight] = useState(0);
+    const [visible, setVisible] = useState(false);
 
     const millisecondsRef = useRef(milliseconds);
     millisecondsRef.current = milliseconds;
 
     const timeRef = useRef(time);
     timeRef.current = time;
+    
+    function showModal() {
+        setVisible(true);
+    }
+
+    function hideModal() {
+        setVisible(false);
+    }
 
     function stopButtonPressed() {
         setIsActive(false);
@@ -58,10 +68,16 @@ function HomeScreen() {
     return(
         <View>
             <Text style={ styles.timeHeader }>TIME:</Text>
-            {/* <Text style={ styles.time}> { time }:{ milliseconds } </Text> */}
             <Text style={ styles.time}> { ("0" + time).slice(-2) }:{ ("0" + milliseconds).slice(-2) } seconds </Text>
             <Text style={ styles.heightHeader }>HEIGHT:</Text>
             <Text style={ styles.time }> { height } meters </Text>
+            <Modal isVisible={visible}>
+                <View style={ styles.modal }>
+                    <Text style={ styles.modalText }>Distance = (0.5) * (9.8m/s) * Time&sup2;</Text>
+                    <Text style={ styles.modalText }>Drop an object from the height you want to measure. Time it until it hits the bottom!</Text>
+                    <Button style={ styles.modalButton } onPress={ hideModal }>HIDE</Button>
+                </View>
+            </Modal>
             <View style= { styles.buttonContainer }>
                 {isActive
                 ? <Button style={ styles.startButton }icon="timer" mode="contained" onPress={ stopButtonPressed }>
@@ -74,7 +90,7 @@ function HomeScreen() {
                 <Button style={ styles.startButton }icon="alarm" mode="contained" onPress={ resetButtonPressed }>
                     Reset
                 </Button>
-                <Button style={ styles.startButton }icon="cloud-question" mode="contained" onPress={ checkTime }>
+                <Button style={ styles.startButton }icon="cloud-question" mode="contained" onPress={ showModal }>
                     How To Use
                 </Button>
             </View>
@@ -121,6 +137,33 @@ const styles = StyleSheet.create({
         width: 250,
         marginBottom: 10,
     },
+    modal: {
+        height: 250,
+        width: 350,
+        textAlign: 'center',
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        backgroundColor: '#41C4FC',
+        borderRadius: 75
+    },
+    modalText: {
+        fontFamily: 'Avenir-Roman',
+        fontSize: 20,
+        textAlign: 'center',
+        color: 'white',
+        fontWeight: '900',
+        marginTop: 30,
+        marginLeft: 20,
+        marginRight: 20
+    },
+    modalButton: {
+        backgroundColor: 'white',
+        width: 150,
+        marginBottom: 10,
+        color: 'white',
+        marginTop: 90,
+        marginLeft: 100
+    }
 });
 
 export default HomeScreen;
