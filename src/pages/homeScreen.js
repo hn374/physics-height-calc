@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Button } from 'react-native-paper';
 import { StyleSheet, View, Text } from "react-native";
 
@@ -6,39 +6,75 @@ function HomeScreen() {
     const [time, setTime] = useState(0);
     const [milliseconds, setMilliseconds] = useState(0);
     const [isActive, setIsActive] = useState(false);
+    const [height, setHeight] = useState(0);
 
-    function timeButtonPressed() {
-        setIsActive(!isActive);
-        let timer = setInterval(tick, 10);
+    const millisecondsRef = useRef(milliseconds);
+    millisecondsRef.current = milliseconds;
+
+    const timeRef = useRef(time);
+    timeRef.current = time;
+
+    function stopButtonPressed() {
+        setIsActive(false);
+
+        const timeToBottom = time + (milliseconds / 100);
+        const distance = (0.5) * (9.8) * (timeToBottom) * (timeToBottom);
+
+        setHeight(distance.toFixed(2));
+    }
+
+    function startButtonPressed() {
+        setIsActive(true);
     }
 
     function resetButtonPressed() {
-        console.log('Reset');
-        // clearInterval(time);
-        // clearInterval(milliseconds);
+        setTime(0);
+        setMilliseconds(0);
+        setHeight(0);
     }
 
-    function tick() {
-        if (milliseconds == 99) {
-            setTime(time + 1);
-        }
-        else {
-            setMilliseconds(milliseconds + 1);
-        }
+    function checkTime() {
     }
+
+    useEffect(() => {
+        let interval = null;
+
+        if (isActive) {
+            interval = setInterval(() => {
+                if (milliseconds == 99) {
+                    setTime(timeRef.current + 1);
+                    setMilliseconds(0);
+                } else {
+                    setMilliseconds(millisecondsRef.current + 1);
+                }
+            }, 10);
+        } else if (!isActive && time !== 0) {
+            clearInterval(interval);
+        }
+
+        return () => clearInterval(interval);
+    });
 
     return(
         <View>
-            <Text style={ styles.header }>TIME:</Text>
-            <Text style={ styles.time}> { time }:{ milliseconds } </Text>
+            <Text style={ styles.timeHeader }>TIME:</Text>
+            {/* <Text style={ styles.time}> { time }:{ milliseconds } </Text> */}
+            <Text style={ styles.time}> { ("0" + time).slice(-2) }:{ ("0" + milliseconds).slice(-2) } seconds </Text>
+            <Text style={ styles.heightHeader }>HEIGHT:</Text>
+            <Text style={ styles.time }> { height } meters </Text>
             <View style= { styles.buttonContainer }>
-                <Button style={ styles.startButton }icon="timer" mode="contained" onPress={ timeButtonPressed }>
-                    { isActive ? 'Start' : 'Stop' }
+                {isActive
+                ? <Button style={ styles.startButton }icon="timer" mode="contained" onPress={ stopButtonPressed }>
+                    Stop
                 </Button>
+                : <Button style={ styles.startButton }icon="timer" mode="contained" onPress={ startButtonPressed }>
+                    Start
+                </Button>
+                }
                 <Button style={ styles.startButton }icon="alarm" mode="contained" onPress={ resetButtonPressed }>
                     Reset
                 </Button>
-                <Button style={ styles.startButton }icon="cloud-question" mode="contained" onPress={ resetButtonPressed }>
+                <Button style={ styles.startButton }icon="cloud-question" mode="contained" onPress={ checkTime }>
                     How To Use
                 </Button>
             </View>
@@ -47,7 +83,14 @@ function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-    header: {
+    timeHeader: {
+        fontSize: 52,
+        fontFamily: 'Avenir-Roman',
+        color: 'white',
+        fontWeight: '900',
+        textAlign: 'center',
+    },
+    heightHeader: {
         fontSize: 52,
         fontFamily: 'Avenir-Roman',
         color: 'white',
@@ -60,7 +103,15 @@ const styles = StyleSheet.create({
         color: 'white',
         fontWeight: '900',
         textAlign: 'center',
-        marginBottom: 50,
+        marginBottom: 15,
+    },
+    height: {
+        fontSize: 52,
+        fontFamily: 'Avenir-Roman',
+        color: 'white',
+        fontWeight: '900',
+        textAlign: 'center',
+        marginBottom: 25,
     },
     buttonContainer: {
         alignItems: 'center',
